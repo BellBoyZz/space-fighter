@@ -4,6 +4,7 @@ import tkinter.ttk as ttk
 from abc import ABC, abstractmethod
 from utils import distance
 
+
 class GameElement(ABC):
 
     @abstractmethod
@@ -21,6 +22,7 @@ class GameElement(ABC):
     @abstractmethod
     def delete(self):
         pass
+
 
 class GameCanvasElement(GameElement):
     def __init__(self, game_app, x=0, y=0):
@@ -65,6 +67,7 @@ class GameCanvasElement(GameElement):
     def update(self):
         pass
 
+
 class Text(GameCanvasElement):
     def __init__(self, game_app, text, x=0, y=0):
         self.text = text
@@ -94,6 +97,15 @@ class Sprite(GameCanvasElement):
             image=self.photo_image)
 
 
+class KeyboardHandler:
+    def __init__(self, successor=None):
+        self.successor = successor
+
+    def handle(self, event):
+        if self.successor:
+            self.successor.handle(event)
+
+
 class GameApp(ttk.Frame): 
     def __init__(self, parent, canvas_width=800, canvas_height=500, update_delay=33):
         super().__init__(parent)
@@ -106,6 +118,9 @@ class GameApp(ttk.Frame):
 
         self.grid(sticky="news")
         self.create_canvas()
+
+        self.key_pressed_handler = KeyboardHandler()
+        self.key_released_handler = KeyboardHandler()
 
         self.elements = []
         self.init_game()
@@ -120,7 +135,6 @@ class GameApp(ttk.Frame):
             width=self.canvas_width, height=self.canvas_height, 
             highlightthickness=0)
         self.canvas.grid(sticky="news")
-
 
     def stop_animation(self):
         self.is_stopped = True
@@ -161,7 +175,7 @@ class GameApp(ttk.Frame):
         pass
 
     def on_key_pressed(self, event):
-        pass
+        self.key_pressed_handler.handle(event)
 
     def on_key_released(self, event):
-        pass
+        self.key_released_handler.handle(event)
